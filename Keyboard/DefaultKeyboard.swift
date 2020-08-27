@@ -7,6 +7,7 @@
 //
 
 func defaultKeyboard() -> Keyboard {
+    
     let defaultKeyboard = Keyboard()
     
     for key in ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"] {
@@ -39,7 +40,9 @@ func defaultKeyboard() -> Keyboard {
     defaultKeyboard.add(key: keyModeChangeNumbers, row: 3, page: 0)
     
     let keyboardChange = Key(.keyboardChange)
-    defaultKeyboard.add(key: keyboardChange, row: 3, page: 0)
+    if KeyboardViewController.shared!.globeKeyShouldDisplay {
+        defaultKeyboard.add(key: Key(keyboardChange), row: 3, page: 0)
+    }
     
     let settings = Key(.settings)
     defaultKeyboard.add(key: settings, row: 3, page: 0)
@@ -86,7 +89,9 @@ func defaultKeyboard() -> Keyboard {
     keyModeChangeLetters.toMode = 0
     defaultKeyboard.add(key: keyModeChangeLetters, row: 3, page: 1)
     
-    defaultKeyboard.add(key: Key(keyboardChange), row: 3, page: 1)
+    if KeyboardViewController.shared!.globeKeyShouldDisplay {
+        defaultKeyboard.add(key: Key(keyboardChange), row: 3, page: 1)
+    }
     
     defaultKeyboard.add(key: Key(settings), row: 3, page: 1)
     
@@ -118,7 +123,9 @@ func defaultKeyboard() -> Keyboard {
     
     defaultKeyboard.add(key: Key(keyModeChangeLetters), row: 3, page: 2)
     
-    defaultKeyboard.add(key: Key(keyboardChange), row: 3, page: 2)
+    if KeyboardViewController.shared!.globeKeyShouldDisplay {
+        defaultKeyboard.add(key: Key(keyboardChange), row: 3, page: 2)
+    }
     
     defaultKeyboard.add(key: Key(settings), row: 3, page: 2)
     
@@ -128,3 +135,4 @@ func defaultKeyboard() -> Keyboard {
     
     return defaultKeyboard
 }
+

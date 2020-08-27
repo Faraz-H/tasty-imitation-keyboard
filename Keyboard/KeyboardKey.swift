@@ -170,7 +170,7 @@ class KeyboardKey: UIControl {
             
             self.label.textAlignment = NSTextAlignment.center
             self.label.baselineAdjustment = UIBaselineAdjustment.alignCenters
-            self.label.font = self.label.font.withSize(22)
+            self.label.font = self.label.font.withSize(24)
             self.label.adjustsFontSizeToFitWidth = true
             self.label.minimumScaleFactor = CGFloat(0.1)
             self.label.isUserInteractionEnabled = false
@@ -199,7 +199,7 @@ class KeyboardKey: UIControl {
             return
         }
         oldBounds = boundingBox
-
+        
         super.layoutSubviews()
         
         CATransaction.begin()
@@ -305,10 +305,10 @@ class KeyboardKey: UIControl {
     }
     
     func redrawText() {
-//        self.keyView.frame = self.bounds
-//        self.button.frame = self.bounds
-//        
-//        self.button.setTitle(self.text, forState: UIControlState.Normal)
+        //        self.keyView.frame = self.bounds
+        //        self.button.frame = self.bounds
+        //
+        //        self.button.setTitle(self.text, forState: UIControlState.Normal)
     }
     
     func redrawShape() {
@@ -417,11 +417,11 @@ class KeyboardKey: UIControl {
         self.connector!.layer.zPosition = -1
         self.addSubview(self.connector!)
         
-//        self.drawBorder = true
+        //        self.drawBorder = true
         
         if direction == Direction.up {
-//            self.popup!.drawUnder = false
-//            self.connector!.drawUnder = false
+            //            self.popup!.drawUnder = false
+            //            self.connector!.drawUnder = false
         }
     }
     
@@ -436,7 +436,7 @@ class KeyboardKey: UIControl {
             let popupLabel = UILabel()
             popupLabel.textAlignment = self.label.textAlignment
             popupLabel.baselineAdjustment = self.label.baselineAdjustment
-            popupLabel.font = self.label.font.withSize(22 * 2)
+            popupLabel.font = self.label.font.withSize(24 * 2)
             popupLabel.adjustsFontSizeToFitWidth = self.label.adjustsFontSizeToFitWidth
             popupLabel.minimumScaleFactor = CGFloat(0.1)
             popupLabel.isUserInteractionEnabled = false
@@ -450,10 +450,11 @@ class KeyboardKey: UIControl {
         }
     }
     
-    func hidePopup() {
+    @objc func hidePopup() {
         if self.popup != nil {
             self.delegate?.willHidePopup(for: self)
             
+          debugPrint("removing popup")
             self.popupLabel?.removeFromSuperview()
             self.popupLabel = nil
             
@@ -474,19 +475,19 @@ class KeyboardKey: UIControl {
 }
 
 /*
-    PERFORMANCE NOTES
-
-    * CAShapeLayer: convenient and low memory usage, but chunky rotations
-    * drawRect: fast, but high memory usage (looks like there's a backing store for each of the 3 views)
-    * if I set CAShapeLayer to shouldRasterize, perf is *almost* the same as drawRect, while mem usage is the same as before
-    * oddly, 3 CAShapeLayers show the same memory usage as 1 CAShapeLayer — where is the backing store?
-    * might want to move to drawRect with combined draw calls for performance reasons — not clear yet
-*/
+ PERFORMANCE NOTES
+ 
+ * CAShapeLayer: convenient and low memory usage, but chunky rotations
+ * drawRect: fast, but high memory usage (looks like there's a backing store for each of the 3 views)
+ * if I set CAShapeLayer to shouldRasterize, perf is *almost* the same as drawRect, while mem usage is the same as before
+ * oddly, 3 CAShapeLayers show the same memory usage as 1 CAShapeLayer — where is the backing store?
+ * might want to move to drawRect with combined draw calls for performance reasons — not clear yet
+ */
 
 class ShapeView: UIView {
     
     var shapeLayer: CAShapeLayer?
-
+    
     override class var layerClass : AnyClass {
         return CAShapeLayer.self
     }
@@ -512,7 +513,7 @@ class ShapeView: UIView {
             }
         }
     }
-
+    
     var strokeColor: UIColor? {
         didSet {
             if let layer = self.shapeLayer {
@@ -575,9 +576,10 @@ class ShapeView: UIView {
         }
     }
     
-//    override func drawRect(rect: CGRect) {
-//        if self.shapeLayer == nil {
-//            self.drawCall(rect)
-//        }
-//    }
+    //    override func drawRect(rect: CGRect) {
+    //        if self.shapeLayer == nil {
+    //            self.drawCall(rect)
+    //        }
+    //    }
 }
+

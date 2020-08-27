@@ -10,9 +10,11 @@ import UIKit
 
 class ForwardingView: UIView {
     
-    var touchToView: [UITouch:UIView] = [:]
+    var touchToView: [UITouch:UIView]
     
     override init(frame: CGRect) {
+        self.touchToView = [:]
+        
         super.init(frame: frame)
         
         self.contentMode = UIViewContentMode.redraw
@@ -40,15 +42,14 @@ class ForwardingView: UIView {
         }
     }
     
-    func handleControl(_ view: UIView?, controlEvent: UIControlEvents) {
-        if let control = view as? UIControl {
+    func handleControl(_ view: UIView?, controlEvent: UIControlEvents, event: UIEvent? = nil) {        if let control = view as? UIControl {
             let targets = control.allTargets
             for target in targets {
                 if let actions = control.actions(forTarget: target, forControlEvent: controlEvent) {
                     for action in actions {
                         let selectorString = action
                         let selector = Selector(selectorString)
-                        control.sendAction(selector, to: target, for: nil)
+                        control.sendAction(selector, to: target, for: event)
                     }
                     
                 }
@@ -156,7 +157,7 @@ class ForwardingView: UIView {
             let viewChangedOwnership = self.ownView(touch, viewToOwn: view)
             
             if !viewChangedOwnership {
-                self.handleControl(view, controlEvent: .touchDown)
+                self.handleControl(view, controlEvent: .touchDown, event: event)
                 
                 if touch.tapCount > 1 {
                     // two events, I think this is the correct behavior but I have not tested with an actual UIControl
@@ -198,7 +199,7 @@ class ForwardingView: UIView {
             let touchPosition = touch.location(in: self)
             
             if self.bounds.contains(touchPosition) {
-                self.handleControl(view, controlEvent: .touchUpInside)
+                self.handleControl(view, controlEvent: .touchUpInside, event: event)
             }
             else {
                 self.handleControl(view, controlEvent: .touchCancel)
@@ -208,13 +209,15 @@ class ForwardingView: UIView {
         }
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let view = self.touchToView[touch]
-            
-            self.handleControl(view, controlEvent: .touchCancel)
-            
-            self.touchToView[touch] = nil
+    override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
+        if let touches = touches {
+            for touch in touches {
+                let view = self.touchToView[touch]
+                
+                self.handleControl(view, controlEvent: .touchCancel)
+                
+                self.touchToView[touch] = nil
+            }
         }
     }
 }

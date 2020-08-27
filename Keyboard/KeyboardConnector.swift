@@ -93,7 +93,7 @@ class KeyboardConnector: KeyboardKeyBackground {
     }
     
     override func generatePointsForDrawing(_ bounds: CGRect) {
-        guard let startConnectable = startConnectable, let endConnectable = endConnectable else {
+        if self.startConnectable == nil || self.endConnectable == nil {
             return
         }
         
@@ -101,28 +101,33 @@ class KeyboardConnector: KeyboardKeyBackground {
         // prepare data //
         //////////////////
 
-        let startPoints = startConnectable.attachmentPoints(self.startDir)
-        let endPoints = endConnectable.attachmentPoints(self.endDir)
+        let startPoints = self.startConnectable!.attachmentPoints(self.startDir)
+        let endPoints = self.endConnectable!.attachmentPoints(self.endDir)
 
-        var convertedStartPoints = (
+        var myConvertedStartPoints = (
             self.convert(startPoints.0, from: self.start),
             self.convert(startPoints.1, from: self.start))
-        let convertedEndPoints = (
+        let myConvertedEndPoints = (
             self.convert(endPoints.0, from: self.end),
             self.convert(endPoints.1, from: self.end))
 
         if self.startDir == self.endDir {
-            let tempPoint = convertedStartPoints.0
-            convertedStartPoints.0 = convertedStartPoints.1
-            convertedStartPoints.1 = tempPoint
+            let tempPoint = myConvertedStartPoints.0
+            myConvertedStartPoints.0 = myConvertedStartPoints.1
+            myConvertedStartPoints.1 = tempPoint
         }
 
-        let path = CGMutablePath()
+        let path = CGMutablePath();
         
-        path.move(to: convertedStartPoints.0)
-        path.addLine(to: convertedEndPoints.1)
-        path.addLine(to: convertedEndPoints.0)
-        path.addLine(to: convertedStartPoints.1)
+        path.move(to: CGPoint(x: myConvertedStartPoints.0.x, y: myConvertedStartPoints.0.y))
+        path.addLine(to: CGPoint(x: myConvertedEndPoints.1.x, y: myConvertedEndPoints.1.y))
+        path.addLine(to: CGPoint(x: myConvertedEndPoints.0.x, y: myConvertedEndPoints.0.y))
+        path.addLine(to: CGPoint(x: myConvertedStartPoints.1.x, y: myConvertedStartPoints.1.y))
+       /* CGPathMoveToPoint(path, NULL, myConvertedStartPoints.0.x, myConvertedStartPoints.0.y)
+        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.1.x, myConvertedEndPoints.1.y)
+        CGPathAddLineToPoint(path, nil, myConvertedEndPoints.0.x, myConvertedEndPoints.0.y)
+        CGPathAddLineToPoint(path, nil, myConvertedStartPoints.1.x, myConvertedStartPoints.1.y)
+       */
         path.closeSubpath()
 
         // for now, assuming axis-aligned attachment points
@@ -131,66 +136,66 @@ class KeyboardConnector: KeyboardKeyBackground {
 
         var midpoint: CGFloat
         if  isVertical {
-            midpoint = convertedStartPoints.0.y + (convertedEndPoints.1.y - convertedStartPoints.0.y) / 2
+            midpoint = myConvertedStartPoints.0.y + (myConvertedEndPoints.1.y - myConvertedStartPoints.0.y) / 2
         }
         else {
-            midpoint = convertedStartPoints.0.x + (convertedEndPoints.1.x - convertedStartPoints.0.x) / 2
+            midpoint = myConvertedStartPoints.0.x + (myConvertedEndPoints.1.x - myConvertedStartPoints.0.x) / 2
         }
 
         let bezierPath = UIBezierPath()
         var currentEdgePath = UIBezierPath()
         var edgePaths = [UIBezierPath]()
         
-        bezierPath.move(to: convertedStartPoints.0)
+        bezierPath.move(to: myConvertedStartPoints.0)
         
         bezierPath.addCurve(
-            to: convertedEndPoints.1,
+            to: myConvertedEndPoints.1,
             controlPoint1: (isVertical ?
-                CGPoint(x: convertedStartPoints.0.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedStartPoints.0.y)),
+                CGPoint(x: myConvertedStartPoints.0.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedStartPoints.0.y)),
             controlPoint2: (isVertical ?
-                CGPoint(x: convertedEndPoints.1.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedEndPoints.1.y)))
+                CGPoint(x: myConvertedEndPoints.1.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedEndPoints.1.y)))
         
         currentEdgePath = UIBezierPath()
-        currentEdgePath.move(to: convertedStartPoints.0)
+        currentEdgePath.move(to: myConvertedStartPoints.0)
         currentEdgePath.addCurve(
-            to: convertedEndPoints.1,
+            to: myConvertedEndPoints.1,
             controlPoint1: (isVertical ?
-                CGPoint(x: convertedStartPoints.0.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedStartPoints.0.y)),
+                CGPoint(x: myConvertedStartPoints.0.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedStartPoints.0.y)),
             controlPoint2: (isVertical ?
-                CGPoint(x: convertedEndPoints.1.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedEndPoints.1.y)))
+                CGPoint(x: myConvertedEndPoints.1.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedEndPoints.1.y)))
         currentEdgePath.apply(CGAffineTransform(translationX: 0, y: -self.underOffset))
         edgePaths.append(currentEdgePath)
         
-        bezierPath.addLine(to: convertedEndPoints.0)
+        bezierPath.addLine(to: myConvertedEndPoints.0)
         
         bezierPath.addCurve(
-            to: convertedStartPoints.1,
+            to: myConvertedStartPoints.1,
             controlPoint1: (isVertical ?
-                CGPoint(x: convertedEndPoints.0.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedEndPoints.0.y)),
+                CGPoint(x: myConvertedEndPoints.0.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedEndPoints.0.y)),
             controlPoint2: (isVertical ?
-                CGPoint(x: convertedStartPoints.1.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedStartPoints.1.y)))
-        bezierPath.addLine(to: convertedStartPoints.0)
+                CGPoint(x: myConvertedStartPoints.1.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedStartPoints.1.y)))
+        bezierPath.addLine(to: myConvertedStartPoints.0)
         
         currentEdgePath = UIBezierPath()
-        currentEdgePath.move(to: convertedEndPoints.0)
+        currentEdgePath.move(to: myConvertedEndPoints.0)
         currentEdgePath.addCurve(
-            to: convertedStartPoints.1,
+            to: myConvertedStartPoints.1,
             controlPoint1: (isVertical ?
-                CGPoint(x: convertedEndPoints.0.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedEndPoints.0.y)),
+                CGPoint(x: myConvertedEndPoints.0.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedEndPoints.0.y)),
             controlPoint2: (isVertical ?
-                CGPoint(x: convertedStartPoints.1.x, y: midpoint) :
-                CGPoint(x: midpoint, y: convertedStartPoints.1.y)))
+                CGPoint(x: myConvertedStartPoints.1.x, y: midpoint) :
+                CGPoint(x: midpoint, y: myConvertedStartPoints.1.y)))
         currentEdgePath.apply(CGAffineTransform(translationX: 0, y: -self.underOffset))
         edgePaths.append(currentEdgePath)
         
-        bezierPath.addLine(to: convertedStartPoints.0)
+        bezierPath.addLine(to: myConvertedStartPoints.0)
         
         bezierPath.close()
         bezierPath.apply(CGAffineTransform(translationX: 0, y: -self.underOffset))

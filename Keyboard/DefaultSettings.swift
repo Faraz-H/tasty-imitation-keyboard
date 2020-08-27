@@ -30,35 +30,26 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     let cellLongLabelColorLight = UIColor.gray
     
     // TODO: these probably don't belong here, and also need to be localized
-    var settingsList: [(String, [String])] {
-        get {
-            return [
-                ("General Settings", [kAutoCapitalization, kPeriodShortcut, kKeyboardClicks]),
-                ("Extra Settings", [kSmallLowercase])
-            ]
-        }
-    }
-    var settingsNames: [String:String] {
-        get {
-            return [
-                kAutoCapitalization: "Auto-Capitalization",
-                kPeriodShortcut:  "“.” Shortcut",
-                kKeyboardClicks: "Keyboard Clicks",
-                kSmallLowercase: "Allow Lowercase Key Caps"
-            ]
-        }
-    }
-    var settingsNotes: [String: String] {
-        get {
-            return [
-                kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system.",
-                kSmallLowercase: "Changes your key caps to lowercase when Shift is off, making it easier to tell what mode you are in."
-            ]
-        }
-    }
+    var settingsList: [(String, [String])]?
+    var settingsNames: [String:String]?
+    var settingsNotes: [String: String]?
     
     required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool) {
         super.init(globalColors: globalColors, darkMode: darkMode, solidColorMode: solidColorMode)
+        self.settingsList = [
+            ("General Settings", [kAutoCapitalization, kPeriodShortcut, kKeyboardClicks]),
+            ("Extra Settings", [kSmallLowercase])
+        ]
+        self.settingsNames = [
+            kAutoCapitalization: "Auto-Capitalization",
+            kPeriodShortcut:  "“.” Shortcut",
+            kKeyboardClicks: "Keyboard Clicks",
+            kSmallLowercase: "Allow Lowercase Key Caps"
+        ]
+        self.settingsNotes = [
+            kKeyboardClicks: "Please note that keyboard clicks will work only if “Allow Full Access” is enabled in the keyboard settings. Unfortunately, this is a limitation of the operating system.",
+            kSmallLowercase: "Changes your key caps to lowercase when Shift is off, making it easier to tell what mode you are in."
+        ]
         self.loadNib()
     }
 
@@ -66,10 +57,14 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         fatalError("loading from nib not supported")
     }
     
+    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool, outputFunc: () -> Void) {
+        fatalError("init(globalColors:darkMode:solidColorMode:outputFunc:) has not been implemented")
+    }
+    
     func loadNib() {
         let assets = Bundle(for: type(of: self)).loadNibNamed("DefaultSettings", owner: self, options: nil)
         
-        if (assets?.count ?? 0) > 0 {
+        if (assets?.count)! > 0 {
             if let rootView = assets?.first as? UIView {
                 rootView.translatesAutoresizingMaskIntoConstraints = false
                 self.addSubview(rootView)
@@ -97,11 +92,11 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return self.settingsList.count
+        return (self.settingsList?.count)!
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.settingsList[section].1.count
+        return (self.settingsList?[section].1.count)!
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -109,7 +104,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        if section == self.settingsList.count - 1 {
+        if section == (self.settingsList?.count)! - 1 {
             return 50
         }
         else {
@@ -118,20 +113,20 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return self.settingsList[section].0
+        return self.settingsList?[section].0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as? DefaultSettingsTableViewCell {
-            let key = self.settingsList[indexPath.section].1[indexPath.row]
+            let key = self.settingsList?[(indexPath as NSIndexPath).section].1[(indexPath as NSIndexPath).row]
             
             if cell.sw.allTargets.count == 0 {
                 cell.sw.addTarget(self, action: #selector(DefaultSettings.toggleSetting(_:)), for: UIControlEvents.valueChanged)
             }
             
-            cell.sw.isOn = UserDefaults.standard.bool(forKey: key)
-            cell.label.text = self.settingsNames[key]
-            cell.longLabel.text = self.settingsNotes[key]
+            cell.sw.isOn = UserDefaults.standard.bool(forKey: key!)
+            cell.label.text = self.settingsNames?[key!]
+            cell.longLabel.text = self.settingsNotes?[key!]
             
             cell.backgroundColor = (self.darkMode ? cellBackgroundColorDark : cellBackgroundColorLight)
             cell.label.textColor = (self.darkMode ? cellLabelColorDark : cellLabelColorLight)
@@ -149,10 +144,10 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
     
     func updateAppearance(_ dark: Bool) {
         if dark {
-            let _ = self.effectsView?.effect //AB: used for side effect, maybe? can't remember, probably junk
+            self.effectsView?.effect
             let blueColor = UIColor(red: 135/CGFloat(255), green: 206/CGFloat(255), blue: 250/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.withAlphaComponent(CGFloat(0.5))
-            self.backButton?.setTitleColor(blueColor, for: .normal)
+            self.backButton?.setTitleColor(blueColor, for: UIControlState())
             self.settingsLabel?.textColor = UIColor.white
             
             if let visibleCells = self.tableView?.visibleCells {
@@ -168,7 +163,7 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         else {
             let blueColor = UIColor(red: 0/CGFloat(255), green: 122/CGFloat(255), blue: 255/CGFloat(255), alpha: 1)
             self.pixelLine?.backgroundColor = blueColor.withAlphaComponent(CGFloat(0.5))
-            self.backButton?.setTitleColor(blueColor, for: .normal)
+            self.backButton?.setTitleColor(blueColor, for: UIControlState())
             self.settingsLabel?.textColor = UIColor.gray
             
             if let visibleCells = self.tableView?.visibleCells {
@@ -183,11 +178,11 @@ class DefaultSettings: ExtraView, UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    func toggleSetting(_ sender: UISwitch) {
+    @objc func toggleSetting(_ sender: UISwitch) {
         if let cell = sender.superview as? UITableViewCell {
             if let indexPath = self.tableView?.indexPath(for: cell) {
-                let key = self.settingsList[indexPath.section].1[indexPath.row]
-                UserDefaults.standard.set(sender.isOn, forKey: key)
+                let key = self.settingsList?[(indexPath as NSIndexPath).section].1[(indexPath as NSIndexPath).row]
+                UserDefaults.standard.set(sender.isOn, forKey: key!)
             }
         }
     }

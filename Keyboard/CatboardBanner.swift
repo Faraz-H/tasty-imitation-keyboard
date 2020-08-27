@@ -28,11 +28,15 @@ class CatboardBanner: ExtraView {
         self.catSwitch.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
         self.catSwitch.addTarget(self, action: #selector(CatboardBanner.respondToSwitch), for: UIControlEvents.valueChanged)
         
-        self.updateAppearance()
+        self.updateAppearances()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    required init(globalColors: GlobalColors.Type?, darkMode: Bool, solidColorMode: Bool, outputFunc: () -> Void) {
+        fatalError("init(globalColors:darkMode:solidColorMode:outputFunc:) has not been implemented")
     }
     
     override func setNeedsLayout() {
@@ -47,12 +51,12 @@ class CatboardBanner: ExtraView {
         self.catLabel.frame.origin = CGPoint(x: self.catSwitch.frame.origin.x + self.catSwitch.frame.width + 8, y: self.catLabel.frame.origin.y)
     }
     
-    func respondToSwitch() {
+    @objc func respondToSwitch() {
         UserDefaults.standard.set(self.catSwitch.isOn, forKey: kCatTypeEnabled)
         self.updateAppearance()
     }
     
-    func updateAppearance() {
+    func updateAppearances() {
         if self.catSwitch.isOn {
             self.catLabel.text = "😺"
             self.catLabel.alpha = 1

@@ -1,0 +1,24 @@
+--- TODO ---
+
+Zack:
+    X Add 3grams to database
+    X Recommend relevant word(s) of ngram, not the whole thing
+    - Capitalize certain words like "I"
+    - Capitalize words at the beginning of a sentence
+    - Add table to keep track of data sources added to _____ profile
+    - Make a function to populate a profile with default words
+
+    ---Done---
+    X Start storing *new* words and n-grams instead of just incrementing banner button words
+    X Make a table for storing Brad's pre-defined phrases
+    X Find a resource for 2- and 3-grams, put them in the database with Default
+        X Find resources
+        X Add to database
+    X Don't insert empty strings as words
+    X Some 2-grams are formatted like "wo  n't"... figure out how to make these 1-grams
+
+
+"i can do"
+
+
+ca --> "can do"

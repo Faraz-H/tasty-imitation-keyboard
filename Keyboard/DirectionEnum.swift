@@ -13,18 +13,18 @@ enum Direction: Int, CustomStringConvertible {
     case up = 1
     
     var description: String {
-        get {
-            switch self {
-            case .left:
-                return "Left"
-            case .right:
-                return "Right"
-            case .up:
-                return "Up"
-            case .down:
-                return "Down"
-            }
+    get {
+        switch self {
+        case .left:
+            return "Left"
+        case .right:
+            return "Right"
+        case .up:
+            return "Up"
+        case .down:
+            return "Down"
         }
+    }
     }
     
     func clockwise() -> Direction {
